@@ -1,17 +1,9 @@
-cd $WORKSPACE
-UPDATEPATH=$WORKSPACE/RKTools/windows/AndroidTool/AndroidTool_Release_v2.33/rockdev
-
-_project=nd3
-_branchver=bsp
-_branchcr=(bsp)
-_branchcode=bsp
-_variant=userdebug
-_product=nd3
-_nettype=wifi
-_device=ND3
-_sku=CN
-
-
+#自动从本地库中获取服务器地址
+if [ -z "${_GERRIT_SERVER}" ]; then
+	_GERRIT_SERVER=`git config --get remote.origin.url`
+	_GERRIT_SERVER=${_GERRIT_SERVER%\:*}
+fi
+echo $_GERRIT_SERVER
 #第一个参数：要存储的文件名；第二个参数：project name；第三个参数：分支名
 function gerrit_query_open()
 {
@@ -24,7 +16,7 @@ function gerrit_query_open()
 		let __idx=__idx+1
 		if [ ${__idx} -gt 2 ]; then
 			__branch=$v
-			ssh gerrit-server gerrit query status:open project:${__project} branch:${__branch} --format=JSON --patch-sets >> ${__tempfile}
+			ssh ${_GERRIT_SERVER} gerrit query status:open project:${__project} branch:${__branch} --format=JSON --patch-sets >> ${__tempfile}
 		fi	
 	done
 }
@@ -51,8 +43,8 @@ function gerrit_review()
 				__GERRIT_REFSPEC=${__GERRIT_REFSPEC#\"}
 				__GERRIT_REFSPEC=${__GERRIT_REFSPEC%\"}
 				__REFSPEC_NUM=${__GERRIT_REFSPEC##*/}
-				echo $__GERRIT_PROJECT $__GERRIT_REFSPEC $__REFSPEC_NUM  
-				ssh gerrit-server gerrit review ${v},${__REFSPEC_NUM} --message ${__reviewmessage[$__reviewvalue]} --verified $__reviewvalue
+				echo ${v} $__GERRIT_PROJECT $__GERRIT_REFSPEC $__REFSPEC_NUM  
+				ssh ${_GERRIT_SERVER} gerrit review ${v},${__REFSPEC_NUM} --message ${__reviewmessage[$__reviewvalue]} --verified $__reviewvalue
 			fi
 		fi		
 	done
@@ -80,7 +72,7 @@ function gerrit_review_1()
 				__GERRIT_REFSPEC=${__GERRIT_REFSPEC%\"}
 				__REFSPEC_NUM=${__GERRIT_REFSPEC##*/}
 				echo $__GERRIT_PROJECT $__GERRIT_REFSPEC $__REFSPEC_NUM  
-				ssh gerrit-server gerrit review ${ids2[$i]},${_REFSPEC_NUM} --message "Build_Successful" --verified 1
+				ssh ${_GERRIT_SERVER} gerrit review ${ids2[$i]},${_REFSPEC_NUM} --message "Build_Successful" --verified 1
 			fi
 		fi
 	done
@@ -111,7 +103,7 @@ function git_cherry_pick()
 				__GERRIT_REFSPEC=${__GERRIT_REFSPEC#\"}
 				__GERRIT_REFSPEC=${__GERRIT_REFSPEC%\"}
 				echo $__GERRIT_PROJECT $__GERRIT_REFSPEC
-				git fetch --tags --progress gerrit-server:${__GERRIT_PROJECT} ${__GERRIT_REFSPEC}
+				git fetch --tags --progress ${_GERRIT_SERVER}:${__GERRIT_PROJECT} ${__GERRIT_REFSPEC}
 #			        git cherry-pick   -Xtheirs FETCH_HEAD
 				git cherry-pick  FETCH_HEAD
 
@@ -139,72 +131,5 @@ function git_rebase_branch()
 	done
 
 }
-
-
-
-git clean -fd
-git fetch
-git reset --hard origin/${_branchcode}
-git checkout -B ${_branchver} origin/${_branchcode}
-
-temp_file=temp.txt
-> $temp_file
-gerrit_query_open ${temp_file} ${_project} ${_branchcr[@]} 
-
-
-unset ids
-unset ids2
-for _branchcur in ${_branchcr[@]}  
-do
-	evalStr="cat $temp_file | jq 'select(.branch == \"${_branchcur}\")' | jq 'select(.number != null)' | jq '.number | tonumber'"
-	ids=(`eval $evalStr`)
-	idssort=( $(for val in "${ids[@]}"  
-	do 
-	 echo "$val" 
-	done | sort -n) ) 
-	gerrit_review $temp_file 0 ${idssort[@]}	
-	git_cherry_pick $temp_file $_branchcur ${idssort[@]}
-	ids2=(${ids2[@]} ${idssort[@]})
-done 
-
-echo "${ids2[@]}"
-
-
-git_rebase_branch ${_branchcr[@]}
-
-
-git checkout -B ${_branchver} ${_branchcode}
-# 编译u-boot
-cd $WORKSPACE/u-boot
-make distclean
-make rk3288_defconfig
-make -j4
-rm $UPDATEPATH/RK3288UbootLoader_V2.19.07.bin
-scp $WORKSPACE/u-boot/RK3288UbootLoader_V2.19.07.bin $UPDATEPATH/RK3288UbootLoader_V2.19.07.bin
-
-# 编译kernel
-cd $WORKSPACE/kernel
-make distclean
-make rockchip_nd3_defconfig
-make rk3288-tb.img -j8
-
-# 编译Android
-cd $WORKSPACE
-source build/envsetup.sh
-lunch ${_product}-${_variant}
-#make clean
-make update-api
-make -j8
-source mkimage.sh ota
-
-
-cd $WORKSPACE
-
-
-gerrit_review $temp_file 1 ${ids2[@]}
-
-
-rm $temp_file
-
 
 

@@ -1,16 +1,15 @@
 cd $WORKSPACE
 UPDATEPATH=$WORKSPACE/RKTools/windows/AndroidTool/AndroidTool_Release_v2.33/rockdev
 
-_project=rom/nd3
-_branchver=dev
-_branchcr=(dev)
-_branchcode=dev
+_project=nd3
+_branchver=english_dev
+_branchcr=(english_dev)
+_branchcode=english_dev
 _variant=userdebug
 _product=nd3
 _nettype=wifi
 _device=ND3
-_sku=CN
-
+_sku=US
 
 source ${JENKINS_HOME}/jobscripts/base_functions.sh
 
@@ -65,7 +64,7 @@ make rk3288-tb.img -j8
 cd $WORKSPACE
 source build/envsetup.sh
 lunch ${_product}-${_variant}-${_nettype}-${_device}-${_sku}
-#make clean
+
 if [ ! -f "out/host/linux-x86/bin/aapt" ]; then  
 	echo "×××××××××××××××××××××编译aapt工具***********************"
 	make clean

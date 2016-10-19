@@ -2,14 +2,14 @@ cd $WORKSPACE
 UPDATEPATH=$WORKSPACE/RKTools/windows/AndroidTool/AndroidTool_Release_v2.33/rockdev
 
 _project=nd3
-_branchver=bsp
-_branchcr=(bsp)
-_branchcode=bsp
+_branchver=test
+_branchcr=(dev test_ndssdk)
+_branchcode=test_ndssdk
 _variant=userdebug
 _product=nd3
 _nettype=wifi
 _device=ND3
-_sku=CN
+_sku=CN_ndssdk
 
 
 #第一个参数：要存储的文件名；第二个参数：project name；第三个参数：分支名
@@ -191,11 +191,14 @@ make rk3288-tb.img -j8
 # 编译Android
 cd $WORKSPACE
 source build/envsetup.sh
-lunch ${_product}-${_variant}
-#make clean
+lunch ${_product}-${_variant}-${_nettype}-${_device}-${_sku}
 make update-api
 make -j8
 source mkimage.sh ota
+
+# 生成刷机包
+cd $UPDATEPATH
+source mkupdate.sh
 
 
 cd $WORKSPACE

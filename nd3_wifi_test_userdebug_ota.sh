@@ -2,20 +2,56 @@ cd $WORKSPACE
 UPDATEPATH=$WORKSPACE/RKTools/windows/AndroidTool/AndroidTool_Release_v2.33/rockdev
 
 _project=nd3
-_branchver=rel
-_branchcr=(rel)
-_branchcode=rel
+_branchver=test
+_branchcr=(dev $1)
+_branchcode=$1
+_branchpick=()
 _variant=userdebug
 _product=nd3
 _nettype=wifi
 _device=ND3
-_sku=CN
+_sku=CN_$1
 
-# 重置源码
+echo "当前分支："$_branchcode
+source ${JENKINS_HOME}/jobscripts/base_functions.sh
+
+
 git clean -fd
 git fetch
 git reset --hard origin/${_branchcode}
 git checkout -B ${_branchver} origin/${_branchcode}
+
+temp_file=temp.txt
+> $temp_file
+gerrit_query_open ${temp_file} ${_project} ${_branchcr[@]} 
+
+
+unset ids
+unset ids2
+for _branchcur in ${_branchcr[@]}  
+do
+	evalStr="cat $temp_file | jq 'select(.branch == \"${_branchcur}\")' | jq 'select(.number != null)' | jq '.number | tonumber'"
+	ids=(`eval $evalStr`)
+	idssort=( $(for val in "${ids[@]}"  
+	do 
+	 echo "$val" 
+	done | sort -n) ) 
+#	gerrit_review $temp_file 0 ${idssort[@]}	
+	git_cherry_pick $temp_file $_branchcur ${idssort[@]}
+	ids2=(${ids2[@]} ${idssort[@]})
+done 
+
+echo "${ids2[@]}"
+
+
+git_rebase_branch ${_branchcr[@]}
+
+git checkout -B ${_branchver} ${_branchcode}
+
+for _pick in ${_branchpick[@]}  
+do 
+	git cherry-pick ${_pick}
+done
 
 # 编译u-boot
 cd $WORKSPACE/u-boot
@@ -36,21 +72,18 @@ cd $WORKSPACE
 source build/envsetup.sh
 lunch ${_product}-${_variant}-${_nettype}-${_device}-${_sku}
 make clean
-########################################################################
 if [ ! -f "out/host/linux-x86/bin/aapt" ]; then  
 	echo "×××××××××××××××××××××编译aapt工具***********************"
 	make clean
 	make update-api
 	make aapt -j8
 fi 
-
 # 按规则生成集成App
 echo "×××××××××××××××××××××开始生成要集成的Apps***********************"
 cd $WORKSPACE/device/rockchip/nd3/nd/common/packages/prebuilds
 source generate.sh
 
 cd $WORKSPACE
-#########################################################################
 make update-api
 make -j8
 source mkimage.sh ota
@@ -107,12 +140,12 @@ make nd_otapackage_inc -j8
 
 
 # 复制到共享服务器
-#_share_ota_dir=" /home/192.168.51.38/pub/nd3/发布包/${_targetfilename}"
+#_share_ota_dir=" /home/192.168.51.38/pub/nd3/临时测试包/${_targetfilename}"
 #mkdir -p ${_share_ota_dir}
 #scp -r ${_output_dir}/.  ${_share_ota_dir}/.  
 
 # 上传至部门内SVN
-_svn_server_dir="https://192.168.19.238/svn/101PAD/ROM包/nd3/发布包/${_targetfilename}"
+_svn_server_dir="https://192.168.19.238/svn/101PAD/ROM包/nd3/临时测试包/${_targetfilename}"
 _svn_local_dir="${_output_dir}"
 _svn_message="${_targetfilename}"
 _svn_username=admin
@@ -120,16 +153,18 @@ _svn_password=admin.654321
 svn mkdir  ${_svn_server_dir} -m ${_svn_message} --username ${_svn_username} --password ${_svn_password} --parents 2>&1
 svn import ${_svn_local_dir} ${_svn_server_dir} -m ${_svn_message} --username ${_svn_username} --password ${_svn_password}  
 
+
 # 上传至QA的SVN
 _svn_server_dir="https://192.168.160.4:8443/svn/101pad/待测试/ROM/nd3/${TARGET_NET_TYPE}-v${_versionname}/${_targetfilename}"
 _svn_local_dir="${_output_dir}"
 _svn_message="${_targetfilename}"
 _svn_username=czq761208
 _svn_password=761208
+
 svn mkdir  ${_svn_server_dir} -m ${_svn_message} --username ${_svn_username} --password ${_svn_password} --parents 2>&1
 svn import ${_svn_local_dir} ${_svn_server_dir} -m ${_svn_message} --username ${_svn_username} --password ${_svn_password}  
 
 
-
+rm $temp_file
 
 

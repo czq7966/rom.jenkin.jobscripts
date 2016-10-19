@@ -1,20 +1,18 @@
-cd $WORKSPACE
 UPDATEPATH=$WORKSPACE/RKTools/windows/AndroidTool/AndroidTool_Release_v2.33/rockdev
 
-_project=rom/nd3
-_branchver=dev
-_branchcr=(dev)
-_branchcode=dev
+_project=nd3
+_branchver=test
+_branchcr=(dev test_ndssdk)
+_branchcode=test_ndssdk
 _variant=userdebug
 _product=nd3
 _nettype=wifi
 _device=ND3
-_sku=CN
-
+_sku=CN_ndssdk
 
 source ${JENKINS_HOME}/jobscripts/base_functions.sh
 
-
+cd $WORKSPACE
 git clean -fd
 git fetch
 git reset --hard origin/${_branchcode}
@@ -35,18 +33,17 @@ do
 	do 
 	 echo "$val" 
 	done | sort -n) ) 
-	gerrit_review $temp_file 0 ${idssort[@]}	
+#	gerrit_review $temp_file 0 ${idssort[@]}	
 	git_cherry_pick $temp_file $_branchcur ${idssort[@]}
 	ids2=(${ids2[@]} ${idssort[@]})
 done 
 
 echo "${ids2[@]}"
 
-
 git_rebase_branch ${_branchcr[@]}
 
-
 git checkout -B ${_branchver} ${_branchcode}
+
 # 编译u-boot
 cd $WORKSPACE/u-boot
 make distclean
@@ -65,20 +62,7 @@ make rk3288-tb.img -j8
 cd $WORKSPACE
 source build/envsetup.sh
 lunch ${_product}-${_variant}-${_nettype}-${_device}-${_sku}
-#make clean
-if [ ! -f "out/host/linux-x86/bin/aapt" ]; then  
-	echo "×××××××××××××××××××××编译aapt工具***********************"
-	make clean
-	make update-api
-	make aapt -j8
-fi 
-
-# 按规则生成集成App
-echo "×××××××××××××××××××××开始生成要集成的Apps***********************"
-cd $WORKSPACE/device/rockchip/nd3/nd/common/packages/prebuilds
-source generate.sh
-
-cd $WORKSPACE
+make clean
 make update-api
 make -j8
 source mkimage.sh ota
@@ -87,11 +71,20 @@ source mkimage.sh ota
 cd $UPDATEPATH
 source mkupdate.sh
 
-
 cd $WORKSPACE
+_versionname=${RO_PRODUCT_FIRMWARE_VERSION}.${RO_PRODUCT_FIRMWARE_PACK_NUMBER}
+_sourcefilename="$UPDATEPATH/update.img"
+_targetfilename=${TARGET_USERS_DEVICE}_${TARGET_USERS_SKU}_${TARGET_BUILD_VARIANT}-${CURRENT_GIT_BRANCH}-${TARGET_NET_TYPE}-${CURRENT_GIT_BRANCH_SHA}_`date +%Y%m%d-%H%M`_v${_versionname}
+_targetfileimg=${_targetfilename}.img
 
 
-gerrit_review $temp_file 1 ${ids2[@]}
+# 复制到共享服务器
+_share_ota_dir=" /home/192.168.51.38/pub/nd3/DEV测试包"
+mkdir -p ${_share_ota_dir}
+scp -r ${_sourcefilename}  ${_share_ota_dir}/${_targetfileimg}
+
+
+#gerrit_review $temp_file 1 ${ids2[@]}
 
 
 rm $temp_file

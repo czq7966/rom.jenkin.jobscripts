@@ -2,15 +2,15 @@ cd $WORKSPACE
 UPDATEPATH=$WORKSPACE/RKTools/windows/AndroidTool/AndroidTool_Release_v2.33/rockdev
 
 _project=rom/nd3
-_branchver=dev
-_branchcr=(dev)
-_branchcode=dev
-_variant=userdebug
+_branchver=test
+_branchcr=(dev $1)
+_branchcode=$1
+_branchpick=()
+_variant=user
 _product=nd3
 _nettype=wifi
 _device=ND3
-_sku=CN
-
+_sku=CN_$1
 
 source ${JENKINS_HOME}/jobscripts/base_functions.sh
 
@@ -45,8 +45,13 @@ echo "${ids2[@]}"
 
 git_rebase_branch ${_branchcr[@]}
 
-
 git checkout -B ${_branchver} ${_branchcode}
+
+for _pick in ${_branchpick[@]}  
+do 
+	git cherry-pick ${_pick}
+done
+
 # 编译u-boot
 cd $WORKSPACE/u-boot
 make distclean
@@ -65,14 +70,12 @@ make rk3288-tb.img -j8
 cd $WORKSPACE
 source build/envsetup.sh
 lunch ${_product}-${_variant}-${_nettype}-${_device}-${_sku}
-#make clean
 if [ ! -f "out/host/linux-x86/bin/aapt" ]; then  
 	echo "×××××××××××××××××××××编译aapt工具***********************"
 	make clean
 	make update-api
 	make aapt -j8
 fi 
-
 # 按规则生成集成App
 echo "×××××××××××××××××××××开始生成要集成的Apps***********************"
 cd $WORKSPACE/device/rockchip/nd3/nd/common/packages/prebuilds
@@ -89,12 +92,9 @@ source mkupdate.sh
 
 
 cd $WORKSPACE
-
-
 gerrit_review $temp_file 1 ${ids2[@]}
 
 
 rm $temp_file
-
 
 

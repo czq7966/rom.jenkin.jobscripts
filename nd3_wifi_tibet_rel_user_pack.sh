@@ -2,14 +2,14 @@ cd $WORKSPACE
 UPDATEPATH=$WORKSPACE/RKTools/windows/AndroidTool/AndroidTool_Release_v2.33/rockdev
 
 _project=nd3
-_branchver=rel
-_branchcr=(rel)
-_branchcode=rel
-_variant=userdebug
+_branchver=tibet_rel
+_branchcr=(tibet_rel)
+_branchcode=tibet_rel
+_variant=user
 _product=nd3
 _nettype=wifi
 _device=ND3
-_sku=CN
+_sku=CN_XZ
 
 # 重置源码
 git clean -fd
@@ -36,21 +36,6 @@ cd $WORKSPACE
 source build/envsetup.sh
 lunch ${_product}-${_variant}-${_nettype}-${_device}-${_sku}
 make clean
-########################################################################
-if [ ! -f "out/host/linux-x86/bin/aapt" ]; then  
-	echo "×××××××××××××××××××××编译aapt工具***********************"
-	make clean
-	make update-api
-	make aapt -j8
-fi 
-
-# 按规则生成集成App
-echo "×××××××××××××××××××××开始生成要集成的Apps***********************"
-cd $WORKSPACE/device/rockchip/nd3/nd/common/packages/prebuilds
-source generate.sh
-
-cd $WORKSPACE
-#########################################################################
 make update-api
 make -j8
 source mkimage.sh ota
@@ -107,25 +92,17 @@ make nd_otapackage_inc -j8
 
 
 # 复制到共享服务器
-#_share_ota_dir=" /home/192.168.51.38/pub/nd3/发布包/${_targetfilename}"
-#mkdir -p ${_share_ota_dir}
-#scp -r ${_output_dir}/.  ${_share_ota_dir}/.  
+_share_ota_dir=" /home/192.168.4.177/pub/nd3/藏文发布包/${_targetfilename}"
+mkdir -p ${_share_ota_dir}
+scp -r ${_output_dir}/.  ${_share_ota_dir}/.  
 
-# 上传至部门内SVN
-_svn_server_dir="https://192.168.19.238/svn/101PAD/ROM包/nd3/发布包/${_targetfilename}"
-_svn_local_dir="${_output_dir}"
-_svn_message="${_targetfilename}"
-_svn_username=admin
-_svn_password=admin.654321
-svn mkdir  ${_svn_server_dir} -m ${_svn_message} --username ${_svn_username} --password ${_svn_password} --parents 2>&1
-svn import ${_svn_local_dir} ${_svn_server_dir} -m ${_svn_message} --username ${_svn_username} --password ${_svn_password}  
-
-# 上传至QA的SVN
+# 上传至SVN
 _svn_server_dir="https://192.168.160.4:8443/svn/101pad/待测试/ROM/nd3/${TARGET_NET_TYPE}-v${_versionname}/${_targetfilename}"
 _svn_local_dir="${_output_dir}"
 _svn_message="${_targetfilename}"
 _svn_username=czq761208
 _svn_password=761208
+
 svn mkdir  ${_svn_server_dir} -m ${_svn_message} --username ${_svn_username} --password ${_svn_password} --parents 2>&1
 svn import ${_svn_local_dir} ${_svn_server_dir} -m ${_svn_message} --username ${_svn_username} --password ${_svn_password}  
 
