@@ -1,9 +1,11 @@
+echo "******加载与Gerrit通信的自定义函数******"
 #自动从本地库中获取服务器地址
 if [ -z "${_GERRIT_SERVER}" ]; then
 	_GERRIT_SERVER=`git config --get remote.origin.url`
 	_GERRIT_SERVER=${_GERRIT_SERVER%\:*}
 fi
 echo $_GERRIT_SERVER
+
 #第一个参数：要存储的文件名；第二个参数：project name；第三个参数：分支名
 function gerrit_query_open()
 {

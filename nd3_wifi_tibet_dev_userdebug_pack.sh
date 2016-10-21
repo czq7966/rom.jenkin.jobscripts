@@ -1,6 +1,6 @@
 UPDATEPATH=$WORKSPACE/RKTools/windows/AndroidTool/AndroidTool_Release_v2.33/rockdev
 
-_project=nd3
+_project=rom/nd3
 _branchver=tibet_dev
 _branchcr=(dev tibet_dev)
 _branchcode=tibet_dev

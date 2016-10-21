@@ -1,6 +1,6 @@
 cd $WORKSPACE
 
-_project=nd3
+_project=rom/nd3
 _branchver=rk3288
 _branchcr=(rk3288)
 _branchcode=rk3288

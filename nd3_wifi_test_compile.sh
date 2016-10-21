@@ -1,25 +1,42 @@
 cd $WORKSPACE
 UPDATEPATH=$WORKSPACE/RKTools/windows/AndroidTool/AndroidTool_Release_v2.33/rockdev
 
-_project=rom/nd3
-_branchver=test
-_branchcr=(dev $1)
-_branchcode=$1
-_branchpick=()
-_variant=user
-_product=nd3
-_nettype=wifi
-_device=ND3
-_sku=CN_$1
+for v in $@ 
+do
+ 	eval "${v//#/ }" 
+done
+
+_project=${_project:-rom/nd3}
+_branchver=${_branchver:-test}
+_branchcode=${_branchcode:-test}
+_branchcr=${_branchcr:-dev ${_branchcode}}
+_branchpick=${_branchpick:-}
+_variant=${_variant:-userdebug}
+_product=${_product:-nd3}
+_nettype=${_nettype:-wifi}
+_device=${_device:-ND3}
+_sku=${_sku:-CN_${_branchcode}}
 
 source ${JENKINS_HOME}/jobscripts/base_functions.sh
+
+echo "_project=${_project}"
+echo "_branchver=$_branchver"
+echo "_branchcode=$_branchcode"
+echo "_branchcr=${_branchcr[@]}"
+echo "_branchpick=$_branchpick"
+echo "_variant=$_variant"
+echo "_product=$_product"
+echo "_nettype=$_nettype"
+echo "_device=$_device"
+echo "_sku=$_sku"
+
 
 
 git clean -fd
 git fetch
 git reset --hard origin/${_branchcode}
 git checkout -B ${_branchver} origin/${_branchcode}
-
+exit
 temp_file=temp.txt
 > $temp_file
 gerrit_query_open ${temp_file} ${_project} ${_branchcr[@]} 
