@@ -6,20 +6,26 @@ UPDATEPATH=${UPDATEPATH:-${WORKSPACE}/RKTools/windows/AndroidTool/AndroidTool_Re
 
 cd $WORKSPACE
 source build/envsetup.sh
-lunch ${_product}-${_variant}-${_nettype}-${_device}-${_sku}
+if [ "${_lunchsku}" == "yes" ]; then
+	lunch ${_product}-${_variant}-${_nettype}-${_device}-${_sku}
+else
+	lunch ${_product}-${_variant}
+fi
 if [ "${_makeclean}" == "yes" ]; then
 	make clean
 fi
-if [ ! -f "out/host/linux-x86/bin/aapt" ]; then  
-	echo "×××××××××××××××××××××编译aapt工具***********************"
-	make clean
-	make update-api
-	make aapt -j8
-fi 
-# 按规则生成集成App
-echo "×××××××××××××××××××××开始生成要集成的Apps***********************"
-cd $WORKSPACE/device/rockchip/nd3/nd/common/packages/prebuilds
-source generate.sh
+if [ "${_prebuildapp}" == "yes" ]; then
+	if [ ! -f "out/host/linux-x86/bin/aapt" ]; then  
+		echo "×××××××××××××××××××××编译aapt工具***********************"
+		make clean
+		make update-api
+		make aapt -j8
+	fi 
+	# 按规则生成集成App
+	echo "×××××××××××××××××××××开始生成要集成的Apps***********************"
+	cd $WORKSPACE/device/rockchip/nd3/nd/common/packages/prebuilds
+	source generate.sh
+fi
 
 cd $WORKSPACE
 make update-api

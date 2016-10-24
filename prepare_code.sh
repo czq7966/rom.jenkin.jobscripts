@@ -4,32 +4,40 @@ git clean -fd
 git fetch
 git reset --hard origin/${_branchcode}
 git checkout -B ${_branchver} origin/${_branchcode}
-_tempfile=${_tempfile:-temp.txt}
-> ${_tempfile}
-gerrit_query_open ${_tempfile} ${_project} ${_branchcr[@]} 
 
+if [ "${_pickcr}" == "yes" ]; then
+	echo "******获取CR******"
+	_tempfile=${_tempfile:-temp.txt}
+	> ${_tempfile}
+	gerrit_query_open ${_tempfile} ${_project} ${_branchcr[@]} 
 
-unset ids
-unset ids2
-for _branchcur in ${_branchcr[@]}  
-do
-	evalStr="cat ${_tempfile} | jq 'select(.branch == \"${_branchcur}\")' | jq 'select(.number != null)' | jq '.number | tonumber'"
-	ids=(`eval $evalStr`)
-	idssort=( $(for val in "${ids[@]}"  
+	unset ids
+	unset ids2
+	for _branchcur in ${_branchcr[@]}  
+	do
+		evalStr="cat ${_tempfile} | jq 'select(.branch == \"${_branchcur}\")' | jq 'select(.number != null)' | jq '.number | tonumber'"
+		ids=(`eval $evalStr`)
+		idssort=( $(for val in "${ids[@]}"  
+		do 
+		 echo "$val" 
+		done | sort -n) ) 
+		if [ "${_verifiedfb}" == "yes" ]; then
+			gerrit_review ${_tempfile} 0 ${idssort[@]}	
+		fi
+		git_cherry_pick ${_tempfile} $_branchcur ${idssort[@]}
+		ids2=(${ids2[@]} ${idssort[@]})
+	done 
+	echo "${ids2[@]}"
+
+	git_rebase_branch ${_branchcr[@]}
+	git checkout -B ${_branchver} ${_branchcode}
+	for _pick in ${_branchpick[@]}  
 	do 
-	 echo "$val" 
-	done | sort -n) ) 
-	if [ "${_verifiedfb}" == "yes" ]; then
-		gerrit_review ${_tempfile} 0 ${idssort[@]}	
-	fi
-	git_cherry_pick ${_tempfile} $_branchcur ${idssort[@]}
-	ids2=(${ids2[@]} ${idssort[@]})
-done 
-echo "${ids2[@]}"
+		git cherry-pick ${_pick}
+	done
 
-git_rebase_branch ${_branchcr[@]}
-git checkout -B ${_branchver} ${_branchcode}
-for _pick in ${_branchpick[@]}  
-do 
-	git cherry-pick ${_pick}
-done
+	if [ -n "${_branchmerge}" ]; then
+		echo "合并 ${_branchmerge}"
+		git merge ${_branchmerge}
+	fi
+fi
