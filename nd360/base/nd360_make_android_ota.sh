@@ -2,8 +2,9 @@ if [ "${_makeota}" == "yes" ]; then
 	echo "******生成 全量包、完整包、增量包******"
 
 	WORKSPACE=${WORKSPACE:-.}
-	UPDATEPATH=${UPDATEPATH:-${WORKSPACE}/RKTools/windows/AndroidTool/AndroidTool_Release_v2.33/rockdev}
-
+	BUILDPATH=${BUILDPATH:-${WORKSPACE}}
+	UPDATEPATH=${UPDATEPATH:-${BUILDPATH}/RKTools/windows/AndroidTool/rockdev}
+	cd $BUILDPATH
 	# 定义输出目录
 	_output_dir="${_output_dir:-${UPDATEPATH}/output}"
 
@@ -12,7 +13,6 @@ if [ "${_makeota}" == "yes" ]; then
 	_inc_dir=${_output_dir}/ota/inc
 	_opt_dir=${_output_dir}/ota/opt
 	_tfp4inc_dir=${_output_dir}/ota/tfp4inc
-	cd $WORKSPACE
 	rm -rf ${_tfp_dir}
 	rm -rf ${_inc_dir}
 	rm -rf ${_opt_dir}

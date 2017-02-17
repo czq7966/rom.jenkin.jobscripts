@@ -1,5 +1,11 @@
 echo "******准备代码******"
 # 准备代码，会产生一个临时文件 _tempfile=temp.txt，依赖于base_functions.sh脚本及default_params.sh，请先加载该脚本
+
+cd $WORKSPACE
+if [ -d ".git/rebase-apply" ]; then
+	rm -fr ".git/rebase-apply"
+fi
+
 git clean -fd
 git fetch
 git reset --hard origin/${_branchcode}
@@ -19,7 +25,10 @@ if [ "${_pickcr}" == "yes" ]; then
 		ids=(`eval $evalStr`)
 		idssort=( $(for val in "${ids[@]}"  
 		do 
-		 echo "$val" 
+			__ignore=`eval echo "$"_IGNORE_CHANGE_ID_${val}`
+			if [ "${__ignore}" != "yes" ]; then
+				echo "$val" 
+			fi
 		done | sort -n) ) 
 		if [ "${_verifiedfb}" == "yes" ]; then
 			gerrit_review ${_tempfile} 0 ${idssort[@]}	

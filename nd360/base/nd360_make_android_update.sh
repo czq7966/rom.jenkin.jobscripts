@@ -1,6 +1,7 @@
 echo "******生成刷机包******"
 WORKSPACE=${WORKSPACE:-.}
-UPDATEPATH=${UPDATEPATH:-${WORKSPACE}/RKTools/windows/AndroidTool/AndroidTool_Release_v2.33/rockdev}
+BUILDPATH=${BUILDPATH:-${WORKSPACE}}
+UPDATEPATH=${UPDATEPATH:-${BUILDPATH}/RKTools/windows/AndroidTool/rockdev}
 
 # 定义输出目录及包名
 _output_dir="$UPDATEPATH/output"

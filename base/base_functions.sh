@@ -45,7 +45,7 @@ function gerrit_review()
 				__GERRIT_REFSPEC=${__GERRIT_REFSPEC#\"}
 				__GERRIT_REFSPEC=${__GERRIT_REFSPEC%\"}
 				__REFSPEC_NUM=${__GERRIT_REFSPEC##*/}
-				echo ${v} $__GERRIT_PROJECT $__GERRIT_REFSPEC $__REFSPEC_NUM  
+				echo "gerrit_review " ${v} $__GERRIT_PROJECT $__GERRIT_REFSPEC $__REFSPEC_NUM  
 				ssh ${_GERRIT_SERVER} gerrit review ${v},${__REFSPEC_NUM} --message ${__reviewmessage[$__reviewvalue]} --verified $__reviewvalue
 			fi
 		fi		
@@ -104,10 +104,11 @@ function git_cherry_pick()
 				__GERRIT_PROJECT=${__GERRIT_PROJECT%\"}
 				__GERRIT_REFSPEC=${__GERRIT_REFSPEC#\"}
 				__GERRIT_REFSPEC=${__GERRIT_REFSPEC%\"}
-				echo $__GERRIT_PROJECT $__GERRIT_REFSPEC
+				__STRATEGY=`eval echo "$"_CHERRY_PICK_STRATEGY_${v}`
+				echo "git_cherry_pick " $__GERRIT_PROJECT $__GERRIT_REFSPEC $v "Strategy_${v}:" ${__STRATEGY}
 				git fetch --tags --progress ${_GERRIT_SERVER}:${__GERRIT_PROJECT} ${__GERRIT_REFSPEC}
 #			        git cherry-pick   -Xtheirs FETCH_HEAD
-				git cherry-pick  FETCH_HEAD
+				git cherry-pick ${__STRATEGY} FETCH_HEAD
 
 			fi
 		fi		
@@ -121,14 +122,19 @@ function git_rebase_branch()
 	local __branch1=
 	local __branch2=
 	local __idx=0
+	echo "合并分支：$@"
 	for v in $@
 	do
 		__branch1=$__branch2
 		__branch2=$v
 		let __idx=__idx+1
 		if [ ${__idx} -gt 1 ]; then
+			echo "******正在将 $__branch2 分支rebase到 $__branch1 分支******"
 			git checkout $__branch2
 			git rebase $__branch1	
+			git branch -d $__branch1
+			git branch $__branch1 $__branch2
+			echo "******已同步分支：$__branch2 和 $__branch1 ******"
 		fi
 	done
 
