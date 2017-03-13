@@ -3,15 +3,7 @@ if [ "${_makeota}" == "yes" ]; then
 
 	WORKSPACE=${WORKSPACE:-.}
 	BUILDPATH=${BUILDPATH:-${WORKSPACE}}
-	UPDATEPATH=${UPDATEPATH:-${BUILDPATH}/RKTools/windows/AndroidTool/rockdev}
-	# 生成drmsigntool工具
-	cd $BUILDPATH/build/tools/drmsigntool
-	mm -B
-	cd $BUILDPATH/build/tools/remkloader
-	mm -B
-	cd $BUILDPATH/build/tools/mkparameter
-	mm -B
-	
+	UPDATEPATH=${UPDATEPATH:-${BUILDPATH}/RKTools/windows/AndroidTool/AndroidTool_Release_v2.33/rockdev}
 	cd $BUILDPATH
 	# 定义输出目录
 	_output_dir="${_output_dir:-${UPDATEPATH}/output}"
@@ -24,11 +16,8 @@ if [ "${_makeota}" == "yes" ]; then
 	rm -rf ${_tfp_dir}
 	rm -rf ${_inc_dir}
 	rm -rf ${_opt_dir}
-	echo "******生成 全量包******"
 	make nd_target-files-package -j8
-	echo "******生成 卡刷包******"
 	make nd_otapackage -j8
-	echo "******生成 增量包******"
 	make nd_otapackage_inc -j8
 fi
 

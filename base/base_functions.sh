@@ -132,7 +132,7 @@ function git_rebase_branch()
 			echo "******正在将 $__branch2 分支rebase到 $__branch1 分支******"
 			git checkout $__branch2
 			git rebase $__branch1	
-			git branch -d $__branch1
+			git branch -D $__branch1
 			git branch $__branch1 $__branch2
 			echo "******已同步分支：$__branch2 和 $__branch1 ******"
 		fi

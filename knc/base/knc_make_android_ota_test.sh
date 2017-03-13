@@ -1,9 +1,9 @@
 if [ "${_makeota}" == "yes" ]; then
-	echo "******生成自测增量包******"
+	echo "******生成 全量包、完整包、增量包******"
 
 	WORKSPACE=${WORKSPACE:-.}
 	BUILDPATH=${BUILDPATH:-${WORKSPACE}}
-	UPDATEPATH=${UPDATEPATH:-${BUILDPATH}/RKTools/windows/AndroidTool/rockdev}
+	UPDATEPATH=${UPDATEPATH:-${BUILDPATH}/RKTools/windows/AndroidTool/AndroidTool_Release_v2.33/rockdev}
 
 	# 定义输出目录
 	_output_dir="${_output_dir:-${UPDATEPATH}/output}"
@@ -15,9 +15,9 @@ if [ "${_makeota}" == "yes" ]; then
 	echo "BUILD_NUMBER=$BUILD_NUMBER"
 
 	cd $BUILDPATH
-	source build.sh
+	source build/envsetup.sh
 	lunch ${_product}-${_variant}-${_nettype}-${_device}-${_sku}
-	echo "test.ota.test.date=`date +%Y%m%d-%H%M`" >> device/rockchip/nd3/system.prop
+	echo "test.ota.test.date=`date +%Y%m%d-%H%M`" >> device/rockchip/${_product}/system.prop
 	make -j8
 	source mkimage.sh ota
 

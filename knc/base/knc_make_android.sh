@@ -1,11 +1,11 @@
-echo "******编译 nd3-6.0 Android******"
+echo "******编译 knc Android******"
 # 编译Android
 WORKSPACE=${WORKSPACE:-.}
 BUILDPATH=${BUILDPATH:-${WORKSPACE}}
-UPDATEPATH=${UPDATEPATH:-${BUILDPATH}/RKTools/windows/AndroidTool/rockdev}
+UPDATEPATH=${UPDATEPATH:-${BUILDPATH}/RKTools/windows/AndroidTool/AndroidTool_Release_v2.33/rockdev}
 
 cd $BUILDPATH
-source build.sh
+source build/envsetup.sh
 if [ "${_lunchsku}" == "yes" ]; then
 	lunch ${_product}-${_variant}-${_nettype}-${_device}-${_sku}
 else
@@ -24,12 +24,12 @@ if [ "${_prebuildapp}" == "yes" ]; then
 	fi 
 	# 按规则生成集成App
 	echo "×××××××××××××××××××××开始生成要集成的Apps***********************"
-	cd ${BUILDPATH}/device/nd/common/packages/prebuilds
+	cd ${BUILDPATH}/device/rockchip/nd3/nd/common/packages/prebuilds
 	source generate.sh
 fi
 
 cd $BUILDPATH
 make update-api
 make -j8
-source mkimage.sh ota
+source mkimage.sh ${_product} ota
 
