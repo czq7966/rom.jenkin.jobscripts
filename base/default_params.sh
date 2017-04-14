@@ -52,6 +52,7 @@ _verifiedfb=${_verifiedfb:-yes}
 _tempfile=${_tempfile:-temp.txt}
 _svn_server_pdir="${_svn_server_pdir:-https://192.168.19.238/svn/101PAD/ROM包/nd3/临时测试包}"
 _svn_server_pdir_qa="${_svn_server_pdir_qa:-https://192.168.160.4:8443/svn/101pad/待测试/ROM/nd3}"
+_ftp_server_pdir_qa="${_ftp_server_pdir_qa:-192.168.160.4/nd3}" 
 
 echo "_project=${_project}"
 echo "_branchver=$_branchver"
@@ -72,5 +73,6 @@ echo "_prebuildapp=$_prebuildapp"
 echo "_verifiedfb=$_verifiedfb"
 echo "_tempfile=$_tempfile"
 echo "_svn_server_pdir=$_svn_server_pdir"
-echo "__svn_server_pdir_qa=$_svn_server_pdir_qa"
+echo "_svn_server_pdir_qa=$_svn_server_pdir_qa"
+echo "_ftp_server_pdir_qa=$_ftp_server_pdir_qa"
 

@@ -14,7 +14,7 @@ _variant=user
 # 参数默认值 编译相关
 # _pickcr=${_pickcr:-yes}			# 是否从_branchcr获取未入库的CR
 _makeota=no
-# _makeclean=yes
+_makeclean=yes
 # _verifiedfb=${_verifiedfb:-yes}		# 编译验证反馈给Gerrit
 # _tempfile=${_tempfile:-temp.txt}		# 临时文件，主要用于临时存储Gerrit上的相关CR
 # _svn_server_pdir="none"

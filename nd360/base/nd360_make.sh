@@ -8,7 +8,7 @@ JOBSCRIPTSPATH=${JENKINS_HOME}/jobscripts
 
 # 参数默认值 代码相关
 # _project=${_project:-rom/nd3}　　	 	# 默认库名
-_project=nd3-6.0
+_project=rom/nd3-6.0
 # _branchver=${_branchver:-test}　		# 版本分支，现有:dev rel int test tibet_dev tibet_rel english_dev english_rel
 # _branchcode=${_branchcode:-test}		# 代码分支
 # _branchcr=${_branchcr:-dev ${_branchcode}}	# 合并分支，后面的分支rebase到前面的分支，是rebase操作
