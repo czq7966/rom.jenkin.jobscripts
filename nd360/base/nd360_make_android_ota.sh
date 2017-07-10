@@ -24,9 +24,9 @@ if [ "${_makeota}" == "yes" ]; then
 	rm -rf ${_tfp_dir}
 	rm -rf ${_inc_dir}
 	rm -rf ${_opt_dir}
-	echo "******生成 全量包******"
-	make nd_target-files-package -j8
-	echo "******生成 卡刷包******"
+	# echo "******生成 全量包******"
+	# make nd_target-files-package -j8
+	echo "******生成 卡刷包 全量包******"
 	make nd_otapackage -j8
 	echo "******生成 增量包******"
 	make nd_otapackage_inc -j8

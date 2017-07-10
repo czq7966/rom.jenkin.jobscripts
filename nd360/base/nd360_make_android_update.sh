@@ -12,6 +12,8 @@ _targetfileimg=${_targetfilename}.img
 _img_dir=${_output_dir}/img
 
 # 生成刷机包
+cd $BUILDPATH
+source mkimage.sh ota
 cd $UPDATEPATH
 source mkupdate.sh
 rm -rf ${_img_dir}

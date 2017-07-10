@@ -5,12 +5,13 @@ _remote_server=${_remote_server:-sdpgitlab}
 #_remote_git_dir=${_remote_dir:-/etc/gerrit}
 
 
-_local_server=${_local_server:-gerrit179}
-_local_server_admin=${_local_server_admin:-gerrit179-admin}
+_local_server=${_local_server:-gerrit-server}
+_local_server_admin=${_local_server_admin:-gerrit-admin}
 _local_gerrit_site=${_local_gerrit_site:-/home/gerrit/site}
-#_local_server=${_local_server:-gerrit75}
-#_local_server_admin=${_local_server_admin:-gerrit75-admin}
+#_local_server=${_local_server:-gerrit-server-debug}
+#_local_server_admin=${_local_server_admin:-gerrit-admin-debug}
 #_local_gerrit_site=${_local_gerrit_site:-/home/nd/gerrit}
+
 _local_git_dir=${_local_git_dir:-${_local_gerrit_site}/git}
 _local_bak_dir=${_local_bak_dir:-${_local_gerrit_site}/bak}
 

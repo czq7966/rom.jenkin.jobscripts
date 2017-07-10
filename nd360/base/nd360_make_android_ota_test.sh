@@ -19,7 +19,7 @@ if [ "${_makeota}" == "yes" ]; then
 	lunch ${_product}-${_variant}-${_nettype}-${_device}-${_sku}
 	echo "test.ota.test.date=`date +%Y%m%d-%H%M`" >> device/rockchip/nd3/system.prop
 	make -j8
-	source mkimage.sh ota
+	#source mkimage.sh ota
 
 
 	mkdir -p ${_tfp4inc_dir}

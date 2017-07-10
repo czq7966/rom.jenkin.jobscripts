@@ -52,10 +52,10 @@ source ${JOBSCRIPTSPATH}/nd360/base/nd360_make_uboot.sh
 source ${JOBSCRIPTSPATH}/nd360/base/nd360_make_kernel.sh
 # 编译Android
 source ${JOBSCRIPTSPATH}/nd360/base/nd360_make_android.sh
-# 生成刷机包
-source ${JOBSCRIPTSPATH}/nd360/base/nd360_make_android_update.sh
 # 生成OTA包
 source ${JOBSCRIPTSPATH}/nd360/base/nd360_make_android_ota.sh
+# 生成刷机包
+source ${JOBSCRIPTSPATH}/nd360/base/nd360_make_android_update.sh
 # 生成测试OTA包
 source ${JOBSCRIPTSPATH}/nd360/base/nd360_make_android_ota_test.sh
 # 上传至部门内SVN

@@ -10,7 +10,7 @@ echo "******执行命令行参数完毕******"
 # _project=${_project:-rom/nd3}　　	 	# 默认库名
 # _branchver=${_branchver:-test}　		# 版本分支，现有:dev rel int test tibet_dev tibet_rel english_dev english_rel
 # _branchcode=${_branchcode:-test}		# 代码分支
-# _branchcr=${_branchcr:-dev ${_branchcode}}	# 合并分支，后面的分支rebase到前面的分支，是rebase操作
+# _branchcr=${_branchcr:-${_branchcode} dev}	# 合并分支，后面的分支rebase到前面的分支，是rebase操作
 # _branchmerge=${_branchmerge:-}		# 临时从哪个分支上过来，是merge操作
 # _branchpick=${_branchpick:-}			# 临时从哪个CR上pick过来
 # _variant=${_variant:-userdebug}		# user/userdebug
@@ -20,6 +20,7 @@ echo "******执行命令行参数完毕******"
 # _sku=${_sku:-CN_${_branchcode}}		# 区域码：CN
 
 # 参数默认值 编译相关
+# _mergestrategy=${_pickcr:-rebase}		# 合并策略 是 rebase 还是　merge
 # _pickcr=${_pickcr:-yes}				# 是否从_branchcr获取未入库的CR
 # _makeota=${_makeota:-yes}				# 是否生成OTA包
 # _makeclean=${_makeclean:-yes}			# 编译android是，是否清空中间件
@@ -34,7 +35,7 @@ echo "******执行命令行参数完毕******"
 _project=${_project:-rom/nd3}
 _branchver=${_branchver:-test}
 _branchcode=${_branchcode:-test}
-_branchcr=${_branchcr:-dev ${_branchcode}}
+_branchcr=${_branchcr:-${_branchcode} dev}
 _branchmerge=${_branchmerge:-}
 _branchpick=${_branchpick:-}
 _variant=${_variant:-userdebug}
@@ -43,6 +44,7 @@ _nettype=${_nettype:-wifi}
 _device=${_device:-ND3}
 _sku=${_sku:-CN_${_branchcode}}
 
+_mergestrategy=${_mergestrategy:-merge}	
 _pickcr=${_pickcr:-yes}
 _makeota=${_makeota:-yes}
 _makeclean=${_makeclean:-yes}
@@ -65,6 +67,7 @@ echo "_product=$_product"
 echo "_nettype=$_nettype"
 echo "_device=$_device"
 echo "_sku=$_sku"
+echo "_mergestrategy=$_mergestrategy"
 echo "_pickcr=$_pickcr"
 echo "_makeota=$_makeota"
 echo "_makeclean=$_makeclean"

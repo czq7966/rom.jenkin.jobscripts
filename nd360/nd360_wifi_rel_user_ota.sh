@@ -19,8 +19,8 @@ _pickcr=no
 # _lunchsku=${_lunchsku:-yes}			# 是否加载sku参数，编译rk3288分支时，该参数请设为 no
 # _prebuildapp=${_prebuildapp:-yes}		# 是否预编译集成App，编译rk3288分支时，该参数请设为 no
 # _tempfile=${_tempfile:-temp.txt}		# 临时文件，主要用于临时存储Gerrit上的相关CR
-_svn_server_pdir="https://192.168.19.238/svn/101PAD/ROM包/nd3/发布包"
-_svn_server_pdir_qa="${_svn_server_pdir_qa:-https://192.168.160.4:8443/svn/101pad/待测试/ROM/nd3}"
+_svn_server_pdir="https://192.168.19.238/svn/101PAD/ROM包/nd360/发布包"
+_svn_server_pdir_qa="${_svn_server_pdir_qa:-https://192.168.160.4:8443/svn/101pad/待测试/ROM/nd360}"
 
 
 source ${JENKINS_HOME}/jobscripts/nd3/base/nd3_make.sh

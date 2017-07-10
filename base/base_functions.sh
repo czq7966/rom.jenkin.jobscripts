@@ -116,7 +116,7 @@ function git_cherry_pick()
 
 }
 
-#传入要合并的分支列表：第N+1分支，合并到第N分支上
+#传入要合并的分支列表：第N分支，合并到第N+1分支上
 function git_rebase_branch()
 {
 	local __branch1=
@@ -129,15 +129,39 @@ function git_rebase_branch()
 		__branch2=$v
 		let __idx=__idx+1
 		if [ ${__idx} -gt 1 ]; then
-			echo "******正在将 $__branch2 分支rebase到 $__branch1 分支******"
-			git checkout $__branch2
-			git rebase $__branch1	
-			git branch -D $__branch1
-			git branch $__branch1 $__branch2
-			echo "******已同步分支：$__branch2 和 $__branch1 ******"
+			echo "******正在将 $__branch1 分支rebase到 $__branch2 分支******"
+			git checkout $__branch1
+			git rebase $__branch2
+#			git branch -D $__branch1
+#			git branch $__branch1 $__branch2
+#			echo "******已同步分支：$__branch2 和 $__branch1 ******"
 		fi
 	done
 
 }
+
+function git_merge_branch()
+{
+	local __branch1=
+	local __branch2=
+	local __idx=0
+	echo "合并分支：$@"
+	for v in $@
+	do
+		__branch1=$__branch2
+		__branch2=$v
+		let __idx=__idx+1
+		if [ ${__idx} -gt 1 ]; then
+			echo "******正在将 $__branch1 分支merge到 $__branch2 分支******"
+			git checkout $__branch1
+			git merge $__branch2
+#			git branch -D $__branch2
+#			git branch $__branch2 $__branch1
+#			echo "******已同步分支：$__branch1 和 $__branch2 ******"
+		fi
+	done
+
+}
+
 
 

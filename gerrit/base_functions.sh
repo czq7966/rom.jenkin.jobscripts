@@ -256,11 +256,32 @@ function gerrit_mirror_project_from_remote_and_init_access()
 	if [ "$__result" == "1" ]; then
 		__result=($(gerrit_batch_create_group_by_project "$__name"))
 		if [ "$__result" == "1" ]; then
+			__=($(gerrit_batch_include_group_by_project "$__name"))
+		fi
+		if [ "$__result" == "1" ]; then
 			__result=($(gerrit_init_project_access "$__name"))
 		fi
 	fi
 	echo "${__result[*]}"
 }
+
+# 创建项目并初始化权限
+function gerrit_create_project_and_init_access()
+{
+	__name=${1%.git}
+	__result=($(gerrit_create_project "$__name"))
+	if [ "$__result" == "1" ]; then
+		__result=($(gerrit_batch_create_group_by_project "$__name"))
+		if [ "$__result" == "1" ]; then
+			__=($(gerrit_batch_include_group_by_project "$__name"))
+		fi
+		if [ "$__result" == "1" ]; then
+			__result=($(gerrit_init_project_access "$__name"))
+		fi
+	fi
+	echo "${__result[*]}"
+}
+
 
 # 初始化项目权限 $1=项目名
 function gerrit_init_project_access()
@@ -329,6 +350,7 @@ function local_init_project_access()
 	echo	"	push = group $__group_push"				>> $__config_file
 	echo	"[access \"refs/heads/*\"]"					>> $__config_file	
 	echo	"	label-Code-Review = -2..+2 group $__group_review"	>> $__config_file
+	echo	"	label-Sonar-Verified = -1..+1 group $__group_review"	>> $__config_file
 	echo	"	label-Verified = -1..+1 group $__group_verified"	>> $__config_file
 	echo	"	submit = group $__group_submit"				>> $__config_file
 	echo	"[access \"refs/meta/config\"]"					>> $__config_file
@@ -430,6 +452,17 @@ function gerrit_set_account_email()
 	fi
 }
 
+# 设置帐号http密码
+function gerrit_set_account_http_password()
+{
+	__name=$1
+	__passwd=$2
+	if [ "$__name" != "" -a "$__passwd" != "" ]; then
+		echo $__name $__passwd
+		ssh ${_local_server_admin} "gerrit set-account --http-password \"$__passwd\" $__name"
+	fi
+}
+
 # 设置帐号Key
 function gerrit_set_account_key()
 {
@@ -442,6 +475,16 @@ function gerrit_set_account_key()
 	fi
 }
 
+# 设置帐号全名full_name
+function gerrit_set_account_full_name()
+{
+	__name=$1
+	__full_name=$2
+	if [ "$__name" != "" -a "$__full_name" != "" ]; then
+		echo $__name $__full_name
+		ssh ${_local_server_admin} "gerrit set-account --full-name \"$__full_name\" $__name"
+	fi
+}
 
 
 # 设置帐号邮箱(从旧Gerrit平台获取Email)
@@ -608,6 +651,37 @@ function gerrit_create_group()
 	echo $__result
 }
 
+# 设置组的用户成员
+function gerrit_set_members_user()
+{
+	__name=$1
+	__user=$2
+
+	if [ "${__name}" != "" -a [ "${__user}" != ""  ]; then
+		ssh ${_local_server_admin} "gerrit set-members --add \"${__user}\" \"${__name}\""
+		echo 1
+	else
+		echo 0
+	fi
+
+}
+
+
+# 设置组的组成员
+function gerrit_set_members_group()
+{
+	__name=$1
+	__group=$2
+
+	if [ "${__name}" != "" -a "${__group}" != "" ]; then
+		ssh ${_local_server_admin} "gerrit set-members --include \"${__group}\" \"${__name}\""
+		echo 1
+	else
+		echo 0
+	fi
+
+}
+
 # 获取组的UUID
 function gerrit_get_group_uuid()
 {
@@ -670,6 +744,35 @@ function gerrit_batch_create_group_by_project()
 }
 
 
+# 根据项目将其它５组加入read组 $1＝项目名
+function gerrit_batch_include_group_by_project()
+{
+	__name=${1%.git}
+	__group_read=${__name}${_local_group_subfix_read}
+	__groups=$_local_project_gropus_subfix
+	__group=	
+	__result=0
+	__i=0
+	if [ "${__name}" != "" ]; then
+		for v in $__groups
+		do			
+			if [ "${v}" != "${_local_group_subfix_read}" ]; then 
+				__group=${__name}$v
+				__result=$(gerrit_exist_group "$__group")
+				if [ "${__result}" == "1" ]; then 
+					__result=$(gerrit_set_members_group "$__group_read" "$__group")
+				fi
+			fi
+		done
+
+	fi 
+	echo $__result
+}
+
+
+
+
+
 # 根据项目批量删除6个组 $1＝项目名
 function gerrit_batch_delete_group_by_project()
 {
@@ -709,6 +812,23 @@ function extract_All_Users_authorized_keys()
 	done
 }
 
+########################################## Change 相关 ########################################
+
+function gerrit_delete_sonar_patch_comments()
+{
+	__change_id=$1
+	__patch_set_id=$2
+	__status="P"
+	if [ "${__change_id}" == "" ]; then
+		echo 0 "change_id 不能为空"
+	elif [ "${__patch_set_id}" == "" ]; then
+		echo 0 "patch_set_id 不能为空"
+	else
+		__result=`ssh ${_local_server_admin} "gerrit gsql --format JSON  -c 'delete from  patch_comments where status = \"${__status}\" and change_id = ${__change_id} and patch_set_id = ${__patch_set_id}'"`
+		echo 1 "${__result}"
+	fi
+	
+}
 
 
 

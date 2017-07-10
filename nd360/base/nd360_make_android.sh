@@ -31,5 +31,5 @@ fi
 cd $BUILDPATH
 make update-api
 make -j8
-source mkimage.sh ota
+
 

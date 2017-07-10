@@ -38,7 +38,12 @@ if [ "${_pickcr}" == "yes" ]; then
 	done 
 	echo "${ids2[@]}"
 
-	git_rebase_branch ${_branchcr[@]}
+	if [ "${_mergestrategy}" == "rebase" ]; then
+		git_rebase_branch ${_branchcr[@]}
+	else
+		git_merge_branch ${_branchcr[@]}	
+	fi
+
 	git checkout -B ${_branchver} ${_branchcode}
 	for _pick in ${_branchpick[@]}  
 	do 
