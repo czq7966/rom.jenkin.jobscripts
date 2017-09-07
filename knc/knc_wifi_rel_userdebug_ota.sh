@@ -23,6 +23,7 @@ _sku=CN
 # _verifiedfb=${_verifiedfb:-yes}		# 编译验证反馈给Gerrit
 # _tempfile=${_tempfile:-temp.txt}		# 临时文件，主要用于临时存储Gerrit上的相关CR
 # _svn_server_pdir="none"
+_svn_server_pdir="${_svn_server_pdir:-https://192.168.19.238/svn/101PAD/ROM包/knc/预备发布包}"
 # _svn_server_pdir_qa="none"
 
 

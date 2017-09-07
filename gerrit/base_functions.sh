@@ -177,7 +177,8 @@ function gerrit_move_project()
 		__dir=${_local_git_dir}/${__name}.git
 		__todir=${_local_bak_dir}/${__name}.git`date "+%Y%m%d%H%M%S"`
 		__ptodir=${__todir%/*}
-		__result=`ssh ${_local_server} " mkdir -p $__ptodir; mv \"${__dir}\" \"${__todir}\""`
+		__result=`ssh ${_local_server} " mkdir -p $__ptodir; cp \"${__dir}\" \"${__todir}\""`
+		__result=`ssh ${_local_server_admin} " delete-project delete --yes-really-delete --force ${__name} "`
 		__result=$(gerrit_exist_project ${__name})
 		__=$(gerrit_flush_caches)
 		if [ "${__result}" == "0" ]; then
@@ -657,7 +658,7 @@ function gerrit_set_members_user()
 	__name=$1
 	__user=$2
 
-	if [ "${__name}" != "" -a [ "${__user}" != ""  ]; then
+	if [ "${__name}" != "" -a "${__user}" != "" ]; then
 		ssh ${_local_server_admin} "gerrit set-members --add \"${__user}\" \"${__name}\""
 		echo 1
 	else

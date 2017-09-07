@@ -17,6 +17,7 @@ if [ "${_makeota}" == "yes" ]; then
 	cd $BUILDPATH
 	source build.sh
 	lunch ${_product}-${_variant}-${_nettype}-${_device}-${_sku}
+        echo "" >> device/rockchip/nd3/system.prop
 	echo "test.ota.test.date=`date +%Y%m%d-%H%M`" >> device/rockchip/nd3/system.prop
 	make -j8
 	#source mkimage.sh ota
