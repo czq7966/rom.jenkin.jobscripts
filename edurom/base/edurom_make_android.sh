@@ -32,7 +32,7 @@ fi
 cd $BUILDPATH
 make update-api
 if [ "${_makeota}" == "no" ]; then
-	make -j8
+	make  nd_otapackage -j8
 fi
 
 
